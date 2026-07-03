@@ -1,0 +1,43 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+# 1️⃣ Install .NET SDK
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '8.x'
+
+# 2️⃣ Prepare SonarQube Analysis
+- task: SonarQubePrepare@5
+  inputs:
+    SonarQube: 'SonarQubeServiceConnection'   # Service connection name
+    scannerMode: 'MSBuild'
+    projectKey: 'dotnet_project'
+    projectName: 'dotnet_project'
+
+# 3️⃣ Restore packages
+- script: dotnet restore
+  displayName: 'Restore packages'
+
+# 4️⃣ Build project
+- script: dotnet build --configuration $(buildConfiguration)
+  displayName: 'Build project'
+
+# 5️⃣ Run tests
+- script: dotnet test --configuration $(buildConfiguration) --no-build --verbosity normal
+  displayName: 'Run unit tests'
+
+# 6️⃣ Run SonarQube Analysis
+- task: SonarQubeAnalyze@5
+
+# 7️⃣ Publish SonarQube Results
+- task: SonarQubePublish@5
+  inputs:
+    pollingTimeoutSec: '300'
