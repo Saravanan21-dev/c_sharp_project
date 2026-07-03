@@ -18,9 +18,8 @@ steps:
 - task: SonarQubePrepare@5
   inputs:
     SonarQube: 'SonarQubeServiceConnection'   # Service connection name
-    scannerMode: 'MSBuild'
+    ScannerMode: 'MSBuild'
     projectKey: 'dotnet_project'
-    projectName: 'dotnet_project'
 
 # 3️⃣ Restore packages
 - script: dotnet restore
@@ -38,6 +37,5 @@ steps:
 - task: SonarQubeAnalyze@5
 
 # 7️⃣ Publish SonarQube Results
-- task: SonarQubePublish@5
-  inputs:
-    pollingTimeoutSec: '300'
+- task: SonarQubePostTest@1
+  displayName: 'Publish SonarQube Results'
